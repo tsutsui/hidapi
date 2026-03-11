@@ -732,7 +732,12 @@ struct hid_device_info HID_API_EXPORT * HID_API_CALL hid_enumerate(unsigned shor
 		if (bus == -1)
 			continue;
 
-		enumerate_usb_devices(bus, 0, hid_enumerate_callback, &hed);
+		/* The root hubs should have addr == 1 */
+		enumerate_usb_devices(bus, 1, hid_enumerate_callback, &hed);
+		/* XXX but xhci.c seems to forgot to set addr == 1 ? */
+		if (hed.root == NULL)
+			enumerate_usb_devices(bus, 0,
+			    hid_enumerate_callback, &hed);
 
 		close(bus);
 	}
